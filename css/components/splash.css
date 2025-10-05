@@ -1,0 +1,90 @@
+/* Splash Screen */
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #e2e8f0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+
+.splash-content {
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.logo-container {
+    margin-bottom: var(--space-8);
+}
+
+.logo {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, var(--accent-color), #f6ad55);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-6);
+    box-shadow: 0 0 50px rgba(237, 137, 54, 0.3);
+    animation: logoFloat 2s ease-in-out infinite;
+}
+
+.logo i {
+    font-size: 4rem;
+    color: white;
+}
+
+.logo-container h1 {
+    font-size: var(--font-size-4xl);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.logo-container p {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+    font-weight: 300;
+}
+
+.loading-bar {
+    width: 300px;
+    height: 4px;
+    background: var(--bg-secondary);
+    border-radius: 2px;
+    margin: var(--space-6) auto;
+    overflow: hidden;
+}
+
+.loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), #f6ad55);
+    border-radius: 2px;
+    animation: loadingProgress 2s ease-in-out forwards;
+}
+
+.loading-text {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-top: var(--space-4);
+}
+
+@keyframes logoFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes loadingProgress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}

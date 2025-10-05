@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid Defense Simulator</title>
+    <!-- CSS Modular -->
+    <link rel="stylesheet" href="css/base/variables.css">
+    <link rel="stylesheet" href="css/base/reset.css">
+    <link rel="stylesheet" href="css/components/splash.css">
+    <link rel="stylesheet" href="css/components/buttons.css">
+    <link rel="stylesheet" href="css/layout/sidebar.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splash-screen">
+        <div class="splash-content">
+            <div class="logo-container">
+               
+                <h1>Asteroid Defense Simulator</h1>
+                <p>Planetary Defense Simulation Platform</p>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <div class="loading-text">Loading simulation...</div>
+        </div>
+    </div>
+
+    <div class="app-container" id="app-container" style="display: none;">
+        <!-- Sidebar Toggle -->
+        <button class="sidebar-toggle" id="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar Menu -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-shield-alt"></i> Asteroid Defense</h1>
+                <p>Planetary Defense Simulator</p>
+                <button class="sidebar-close" id="sidebar-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <!-- Asteroid Parameters -->
+                <div class="control-section" id="simulation-section">
+                    <h3><i class="fas fa-rock"></i> Asteroid Parameters</h3>
+                    
+                    <div class="parameter-group">
+                        <label for="asteroid-size">Size (m)</label>
+                        <div class="slider-container">
+                            <input type="range" id="asteroid-size" min="0" max="11000" value="50" class="slider">
+                            <div class="slider-value" id="size-value">50m</div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-group">
+                        <label for="asteroid-velocity">Velocity (km/s)</label>
+                        <div class="slider-container">
+                            <input type="range" id="asteroid-velocity" min="5" max="50" value="5" class="slider">
+                            <div class="slider-value" id="velocity-value">5 km/s</div>
+                        </div>
+                    </div>
+
+
+                    <div class="parameter-group">
+                        <label for="composition">Composition</label>
+                        <select id="composition" class="control-select">
+                            <option value="rocky">Rocky</option>
+                            <option value="metallic">Metallic</option>
+                            <option value="icy">Icy</option>
+                            <option value="mixed">Mixed</option>
+                        </select>
+                    </div>
+
+                    <div class="parameter-group">
+                        <label for="latitude">Latitude</label>
+                        <input type="text" id="latitude" placeholder="Enter latitude coordinate" class="text-input" value="40.7128">
+                        <div class="input-help">Enter latitude coordinate</div>
+                    </div>
+
+                    <div class="parameter-group">
+                        <label for="longitude">Longitude</label>
+                        <input type="text" id="longitude" placeholder="Enter longitude coordinate" class="text-input" value="-74.0060">
+                        <div class="input-help">Enter longitude coordinate</div>
+                    </div>
+                </div>
+
+                <!-- Defense Strategy -->
+                <div class="control-section">
+                    <h3><i class="fas fa-shield-alt"></i> Defense Strategy</h3>
+                    
+                    <div class="defense-strategies-vertical">
+                        <button class="defense-strategy-btn" data-strategy="kinetic">
+                            <i class="fas fa-bullseye"></i>
+                            <div class="strategy-info">
+                                <span class="strategy-name">Kinetic Impactor</span>
+                                <span class="strategy-desc">Deflect asteroid with kinetic impactor</span>
+                            </div>
+                        </button>
+                        
+                        <button class="defense-strategy-btn" data-strategy="gravity">
+                            <i class="fas fa-magnet"></i>
+                            <div class="strategy-info">
+                                <span class="strategy-name">Gravity Tractor</span>
+                                <span class="strategy-desc">Use gravitational pull to deflect</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="parameter-group" id="action-timing">
+                        <label for="action-time">Time to Action (hours)</label>
+                        <div class="slider-container">
+                            <input type="range" id="action-time" min="24" max="87600" value="24" class="slider">
+                            <div class="slider-value" id="time-value">24 hours</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="button" class="btn-primary" id="run-simulation">
+                        <i class="fas fa-play"></i> Simulate
+                    </button>
+                    <button type="button" class="btn-secondary" id="reset-simulation">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Viewport -->
+        <main class="main-viewport">
+            <!-- View Controls -->
+            <div class="view-controls-top">
+                <button class="view-btn active" data-view="3d">
+                    <i class="fas fa-cube"></i> 3D Visualization
+                </button>
+                <button class="view-btn" data-view="2d">
+                    <i class="fas fa-map"></i> Impact Map
+                </button>
+            </div>
+
+            <!-- 3D Visualization -->
+            <div class="viewport-container active" id="viewport-3d">
+                <canvas id="orbit-canvas"></canvas>
+            </div>
+
+            <!-- 2D Impact Map -->
+            <div class="viewport-container" id="viewport-2d">
+                <div class="impact-map-2d">
+                    <div id="leaflet-map" class="leaflet-container">
+                        <!-- Map Controls -->
+                        <div class="map-controls">
+                            <button class="map-control-btn" id="center-map-btn">
+                                <i class="fas fa-crosshairs"></i>
+                            </button>
+                            <button class="map-control-btn" id="toggle-effects-btn">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Map Legend -->
+                        <div class="map-legend-2d">
+                            <h4>Legend</h4>
+                            <div class="legend-items">
+                                <div class="legend-item">
+                                    <div class="legend-color impact"></div>
+                                    <span>Impact Point</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color blast"></div>
+                                    <span>Blast Radius</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color seismic"></div>
+                                    <span>Seismic Waves</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color tsunami"></div>
+                                    <span>Tsunami Zones</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Statistics Panel (only for 2D view) -->
+                    <div class="stats-panel-2d">
+                        <h3><i class="fas fa-chart-line"></i> Statistics</h3>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="energy-stat">12.5 MT</div>
+                                    <div class="stat-label">Impact Energy</div>
+                                    <div class="stat-description">TNT Equivalent</div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-circle"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="crater-stat">2.1 km</div>
+                                    <div class="stat-label">Crater Size</div>
+                                    <div class="stat-description">Estimated Diameter</div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-mountain"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="seismic-stat">7.2</div>
+                                    <div class="stat-label">Seismic Magnitude</div>
+                                    <div class="stat-description">Richter Scale</div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-wave-square"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="tsunami-stat">18m</div>
+                                    <div class="stat-label">Tsunami Height</div>
+                                    <div class="stat-description">Maximum Height</div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="casualties-stat">2.1M</div>
+                                    <div class="stat-label">Estimated Casualties</div>
+                                    <div class="stat-description">People Affected</div>
+                                </div>
+                            </div>
+
+
+                </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Impact Configuration Modal -->
+    <div id="impact-config-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Configure Impact Parameters</h3>
+                <button class="modal-close" id="close-config-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="config-form">
+                    <div class="form-group">
+                        <label for="config-asteroid-size">Asteroid Size (meters)</label>
+                        <div class="slider-container">
+                            <input type="range" id="config-asteroid-size" min="0" max="11000" value="10" class="slider">
+                            <span id="config-size-value" class="slider-display-value">10m</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="config-asteroid-velocity">Velocity (km/s)</label>
+                        <div class="slider-container">
+                            <input type="range" id="config-asteroid-velocity" min="5" max="70" value="5" class="slider">
+                            <span id="config-velocity-value" class="slider-display-value">5 km/s</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="config-impact-angle">Impact Angle (degrees)</label>
+                        <div class="fixed-value">
+                            <span class="fixed-value-display">90° (Fixed)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancel-config">Cancel</button>
+                <button class="btn-primary" id="confirm-config">
+                    <i class="fas fa-play"></i> Run Simulation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simulation Modal -->
+    <div id="simulation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Impact Simulation</h3>
+                <button class="modal-close" id="close-simulation-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="simulation-loading" class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <p>Calculating impact effects...</p>
+                </div>
+                
+                <div id="simulation-results" class="simulation-results" style="display: none;">
+                    <div class="location-info">
+                        <h4 id="simulation-location"></h4>
+                        <p id="simulation-coordinates"></p>
+                    </div>
+                    
+                    <div class="impact-effects">
+                        <h5>Impact Effects</h5>
+                        <div class="effects-grid">
+                            <div class="effect-item">
+                                <span class="effect-label">Crater Diameter:</span>
+                                <span class="effect-value" id="modal-crater-diameter"></span>
+                            </div>
+                            <div class="effect-item">
+                                <span class="effect-label">Fireball Radius:</span>
+                                <span class="effect-value" id="modal-fireball-radius"></span>
+                            </div>
+                            <div class="effect-item">
+                                <span class="effect-label">Blast Radius:</span>
+                                <span class="effect-value" id="modal-blast-radius"></span>
+                            </div>
+                            <div class="effect-item">
+                                <span class="effect-label">Seismic Magnitude:</span>
+                                <span class="effect-value" id="modal-seismic-magnitude"></span>
+                            </div>
+                            <div class="effect-item">
+                                <span class="effect-label">Tsunami Risk:</span>
+                                <span class="effect-value" id="modal-tsunami-risk"></span>
+                            </div>
+                            <div class="effect-item">
+                                <span class="effect-label">Tsunami Height:</span>
+                                <span class="effect-value" id="modal-tsunami-height"></span>
+                            </div>
+                            <div class="effect-item">
+                                <span class="effect-label">Affected Population:</span>
+                                <span class="effect-value" id="modal-affected-population"></span>
+                            </div>
+                            <div class="effect-item">
+                                <span class="effect-label">Evacuation Time:</span>
+                                <span class="effect-value" id="modal-evacuation-time"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="terrain-info">
+                        <h5>Terrain Information</h5>
+                        <div class="terrain-details">
+                            <div class="terrain-item">
+                                <span class="terrain-label">Type:</span>
+                                <span class="terrain-value" id="modal-terrain-type"></span>
+                            </div>
+                            <div class="terrain-item" id="modal-ocean-depth" style="display: none;">
+                                <span class="terrain-label">Ocean Depth:</span>
+                                <span class="terrain-value" id="modal-ocean-depth-value"></span>
+                            </div>
+                            <div class="terrain-item" id="modal-elevation" style="display: none;">
+                                <span class="terrain-label">Elevation:</span>
+                                <span class="terrain-value" id="modal-elevation-value"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="location-statistics">
+                        <h5>Location Statistics</h5>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Population:</span>
+                                <span class="stat-value" id="modal-population"></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Infrastructure:</span>
+                                <span class="stat-value" id="modal-infrastructure"></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Risk Level:</span>
+                                <span class="stat-value" id="modal-risk-level"></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Expected Damage:</span>
+                                <span class="stat-value" id="modal-expected-damage"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn-secondary" id="close-simulation-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+    <!-- JavaScript Modular -->
+    <script src="js/api/config.js"></script>
+    <script src="js/ui/SplashManager.js"></script>
+    <script src="js/ui/SidebarManager.js"></script>
+    <script src="js/ui/NotificationManager.js"></script>
+    <script src="js/visualization/ThreeJSManager.js"></script>
+    <script src="js/visualization/MapManager.js"></script>
+    <script src="js/core/SimulationManager.js"></script>
+    <script src="js/core/EventManager.js"></script>
+    <script src="js/utils/UtilsManager.js"></script>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>

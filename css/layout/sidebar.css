@@ -1,0 +1,192 @@
+/* Sidebar Layout */
+.sidebar {
+    width: 350px;
+    height: 100vh;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    transform: translateX(-100%);
+}
+
+.sidebar.closed {
+    transform: translateX(-100%);
+}
+
+.sidebar.open {
+    transform: translateX(0);
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sidebar Toggle */
+.sidebar-toggle {
+    position: fixed;
+    top: var(--space-4);
+    left: var(--space-4);
+    z-index: 10000;
+    width: 48px;
+    height: 48px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-lg);
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+}
+
+.sidebar-toggle:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-color);
+    transform: scale(1.05);
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    padding: var(--space-6);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.sidebar-header h1 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.sidebar-header p {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Control Panel */
+.control-panel {
+    flex: 1;
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+}
+
+.control-section {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+}
+
+.control-section h3 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-3);
+    margin-top: auto;
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-color);
+    justify-content: space-between;
+}
+
+.action-buttons .btn-primary,
+.action-buttons .btn-secondary {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-3);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: var(--font-size-sm);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    min-height: 48px;
+}
+
+.action-buttons .btn-primary {
+    background: var(--accent-color);
+    color: white;
+}
+
+.action-buttons .btn-primary:hover {
+    background: #1e40af;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.action-buttons .btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.action-buttons .btn-secondary:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent-color);
+}
+
+/* App Container when sidebar is open - No fixed space */
+.app-container.sidebar-open {
+    /* No margin-left to avoid fixed space */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100vw;
+        z-index: 9999;
+    }
+    
+    .sidebar-toggle {
+        top: var(--space-3);
+        left: var(--space-3);
+        z-index: 10000;
+    }
+}
