@@ -492,29 +492,50 @@ class SimulationManager {
         const filtersPanel = document.getElementById('3d-filters-panel');
         if (filtersPanel) {
             filtersPanel.innerHTML = `
-                <h4>3D Controls</h4>
                 <div class="filter-group">
-                    <input type="checkbox" id="toggle-planets" checked>
-                    <label for="toggle-planets">Show Planets</label>
-                </div>
-                <div class="filter-group">
-                    <input type="checkbox" id="toggle-asteroids" checked>
-                    <label for="toggle-asteroids">Show Asteroids</label>
-                </div>
-                <div class="filter-group">
-                    <input type="checkbox" id="toggle-orbits">
-                    <label for="toggle-orbits">Show Orbits</label>
+                    <div class="filter-toggle">
+                        <label for="toggle-planets">
+                            <i class="fas fa-globe"></i>
+                            Show Planets
+                        </label>
+                        <input type="checkbox" id="toggle-planets" checked>
+                    </div>
                 </div>
                 <div class="filter-group">
-                    <input type="checkbox" id="toggle-labels" checked>
-                    <label for="toggle-labels">Show Labels</label>
+                    <div class="filter-toggle">
+                        <label for="toggle-asteroids">
+                            <i class="fas fa-asterisk"></i>
+                            Show Asteroids
+                        </label>
+                        <input type="checkbox" id="toggle-asteroids" checked>
+                    </div>
                 </div>
-                <div class="filter-buttons">
-                    <button id="focus-earth">Focus Earth</button>
-                    <button id="reset-3d-view">Reset View</button>
-                    <button id="zoom-in">Zoom In</button>
-                    <button id="zoom-out">Zoom Out</button>
+                <div class="filter-group">
+                    <div class="filter-toggle">
+                        <label for="toggle-orbits">
+                            <i class="fas fa-circle"></i>
+                            Show Orbits
+                        </label>
+                        <input type="checkbox" id="toggle-orbits" checked>
+                    </div>
                 </div>
+                <div class="filter-group">
+                    <div class="filter-toggle">
+                        <label for="toggle-labels">
+                            <i class="fas fa-tag"></i>
+                            Show Labels
+                        </label>
+                        <input type="checkbox" id="toggle-labels" checked>
+                    </div>
+                </div>
+                <button class="focus-button" id="focus-earth">
+                    <i class="fas fa-crosshairs"></i>
+                    Focus on Earth
+                </button>
+                <button class="reset-view-btn" id="reset-3d-view">
+                    <i class="fas fa-undo"></i>
+                    Reset View
+                </button>
             `;
         }
     }

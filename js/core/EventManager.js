@@ -192,6 +192,12 @@ class EventManager {
     }
 
     bind3DFilterEvents() {
+        // Check if threeJSManager is available
+        if (!this.simulator.threeJSManager) {
+            console.warn('ThreeJSManager not available, skipping 3D filter events');
+            return;
+        }
+
         // Planet toggle
         const planetsToggle = document.getElementById('toggle-planets');
         if (planetsToggle) {
@@ -810,9 +816,7 @@ class EventManager {
 
     handleWindowResize() {
         // Handle Three.js resize
-        if (this.simulator.threeJSManager) {
-            this.simulator.threeJSManager.onWindowResize();
-        }
+      
         
         // Handle map resize
         if (this.simulator.mapManager && this.simulator.mapManager.map) {
