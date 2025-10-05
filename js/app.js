@@ -34,21 +34,42 @@ class AsteroidDefenseSimulator {
             // Wait a bit for DOM to be ready
             await new Promise(resolve => setTimeout(resolve, 100));
             
-            // Setup Three.js scene
-            this.setupThreeJS();
-            
             // Initialize sidebar first
             this.sidebarManager.initializeSidebarState();
             this.sidebarManager.setupSidebarToggle();
             
             // Initialize map
-            this.initializeLeafletMap();
+                this.initializeLeafletMap();
             
-            // Bind all events
-            this.eventManager.bindEvents();
-            
-            // Initialize solar system viewer
-            this.initializeSolarSystemViewer();
+            // Setup Three.js scene after DOM is ready
+            setTimeout(() => {
+                try {
+                    // Check if Three.js is loaded
+                    if (typeof THREE === 'undefined') {
+                        setTimeout(() => {
+                            this.setupThreeJS();
+                            this.initializeSolarSystemViewer();
+                            // Bind events after Three.js is ready
+                            this.eventManager.bindEvents();
+                        }, 2000);
+                        return;
+                    }
+                    
+                    const success = this.setupThreeJS();
+                    if (success) {
+                        this.initializeSolarSystemViewer();
+                        // Bind events after Three.js is ready
+                        this.eventManager.bindEvents();
+                    } else {
+                        // Still bind events even if Three.js fails
+                        this.eventManager.bindEvents();
+                    }
+                } catch (error) {
+                    console.error('Three.js setup error:', error);
+                    // Still bind events even if Three.js fails
+                    this.eventManager.bindEvents();
+                }
+            }, 1500);
             
             // Update UI
             this.updateUI();
@@ -71,19 +92,32 @@ class AsteroidDefenseSimulator {
     }
 
     setupThreeJS() {
-        this.threeJSManager.setupThreeJS();
-        this.threeJSManager.createSolarSystem();
+        try {
+            if (this.threeJSManager) {
+                return this.threeJSManager.setupThreeJS();
+            }
+            return false;
+        } catch (error) {
+            return false;
+        }
     }
 
     initializeLeafletMap() {
         // Initialize map after a delay to ensure DOM is ready
-        setTimeout(() => {
+                setTimeout(() => {
             this.mapManager.initializeLeafletMap();
-        }, 500);
+                }, 500);
     }
 
     initializeSolarSystemViewer() {
-        // Initialize solar system viewer
+        try {
+            if (this.threeJSManager) {
+                this.threeJSManager.createSolarSystem();
+            }
+        } catch (error) {
+            return false;
+        }
+        return true;
     }
 
     setupGlobalFunctions() {

@@ -487,13 +487,21 @@
 
 /* 3D Viewport */
 #viewport-3d {
-    background: var(--space-bg);
+    background: var(--space-bg) !important;
+    min-height: 100vh !important;
+    height: 100vh !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 #orbit-canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    min-height: 400px !important;
+    background: #000011 !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 /* Viewport Overlay */
@@ -2555,6 +2563,121 @@
 
 .stat-value.risk-low {
     color: #059669;
+}
+
+/* 3D Controls */
+#3d-controls {
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
+    box-shadow: var(--shadow-md);
+}
+
+#3d-controls h3 {
+    color: var(--accent-color);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+
+#3d-filters-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.filter-group {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    transition: all 0.3s ease;
+}
+
+.filter-group:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) 0;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.filter-toggle:hover {
+    color: var(--accent-color);
+}
+
+.filter-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent-color);
+}
+
+.filter-toggle label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.filter-toggle i {
+    width: 16px;
+    text-align: center;
+}
+
+.focus-button {
+    width: 100%;
+    padding: var(--space-3);
+    background: #1e3a8a;
+    color: white;
+    border: 2px solid #1e3a8a;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: var(--space-2);
+}
+
+.focus-button:hover {
+    background: #1e40af;
+    border-color: #1e40af;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.focus-button:active {
+    transform: translateY(0);
+}
+
+.reset-view-btn {
+    width: 100%;
+    padding: var(--space-3);
+    background: #1e3a8a;
+    color: white;
+    border: 2px solid #1e3a8a;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: var(--space-2);
+}
+
+.reset-view-btn:hover {
+    background: #1e40af;
+    border-color: #1e40af;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 /* Modal Responsive */
