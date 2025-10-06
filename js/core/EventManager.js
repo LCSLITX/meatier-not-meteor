@@ -71,7 +71,7 @@ class EventManager {
             });
         }
 
-        // Defense strategy buttons
+        // Defense strategy buttons (only Kinetic Impactor available)
         const defenseStrategyButtons = document.querySelectorAll('.defense-strategy-btn');
         defenseStrategyButtons.forEach(button => {
             button.addEventListener('click', (e) => {
@@ -127,11 +127,19 @@ class EventManager {
     }
 
     bindButtonEvents() {
-        // Run simulation button
-        const runSimulationBtn = document.getElementById('run-simulation');
-        if (runSimulationBtn) {
-            runSimulationBtn.addEventListener('click', () => {
-                this.runImpactSimulation();
+        // Launch Impact button
+        const launchImpactBtn = document.getElementById('launch-impact');
+        if (launchImpactBtn) {
+            launchImpactBtn.addEventListener('click', () => {
+                this.launchImpact();
+            });
+        }
+
+        // Launch Defense button (depends on impact simulation)
+        const launchDefenseBtn = document.getElementById('launch-defense');
+        if (launchDefenseBtn) {
+            launchDefenseBtn.addEventListener('click', () => {
+                this.launchDefense();
             });
         }
 
@@ -140,6 +148,14 @@ class EventManager {
         if (resetSimulationBtn) {
             resetSimulationBtn.addEventListener('click', () => {
                 this.resetImpactSimulation();
+            });
+        }
+
+        // View impact details button
+        const viewImpactDetailsBtn = document.getElementById('view-impact-details');
+        if (viewImpactDetailsBtn) {
+            viewImpactDetailsBtn.addEventListener('click', () => {
+                this.showImpactDetails();
             });
         }
 
@@ -315,15 +331,14 @@ class EventManager {
             this.simulator.mapManager.onAsteroidParametersChanged();
         }
         
-        // Show notification
+        // Show gamified notification
         if (this.simulator.notificationManager) {
-            const strategyNames = {
-                kinetic: "Kinetic Impactor",
-                gravity: "Gravity Tractor"
+            const strategyMessages = {
+                kinetic: "🎯 Kinetic Impactor Ready! Mission parameters configured for maximum deflection efficiency."
             };
             
             this.simulator.notificationManager.showNotification(
-                `Defense strategy selected: ${strategyNames[strategyType]}`,
+                strategyMessages[strategyType] || "Strategy selected",
                 "success"
             );
         }
@@ -531,13 +546,146 @@ class EventManager {
             this.simulator.mapManager.runImpactSimulation(latlng);
             this.simulator.mapManager.showSimulationModal(latlng);
 
-            // Show notification
+            // Enable defense button after simulation from popup
+            const launchDefenseBtn = document.getElementById('launch-defense');
+            if (launchDefenseBtn) {
+                launchDefenseBtn.disabled = false;
+                launchDefenseBtn.classList.remove('disabled');
+            }
+
+            // Show gamified notification
             if (this.simulator.notificationManager) {
                 this.simulator.notificationManager.showNotification(
-                    'Impact simulation completed!',
+                    '💥 IMPACT SIMULATION COMPLETE! 🎯\nThreat assessment finished successfully!\n⚡ Planetary damage analysis: COMPLETE\n🛡️ Defense systems: ARMED and READY!\n🚀 Kinetic Impactor: AVAILABLE for deployment!',
                     'success'
                 );
             }
+        }
+    }
+
+    launchImpact() {
+        // Validate required parameters for impact simulation
+        const asteroidSize = parseFloat(document.getElementById('asteroid-size').value);
+        const asteroidVelocity = parseFloat(document.getElementById('asteroid-velocity').value);
+        const composition = document.getElementById('composition').value;
+        const latitude = parseFloat(document.getElementById('latitude').value);
+        const longitude = parseFloat(document.getElementById('longitude').value);
+
+        if (!asteroidSize || asteroidSize <= 0) {
+            this.simulator.notificationManager.showNotification(
+                '🚨 CRITICAL ALERT! 🚨\nAsteroid size parameter MISSING!\n⚡ Cannot calculate impact devastation without threat dimensions!\n🎯 Please configure asteroid size for impact analysis!',
+                'warning'
+            );
+            return;
+        }
+
+        if (!asteroidVelocity || asteroidVelocity <= 0) {
+            this.simulator.notificationManager.showNotification(
+                '🚨 CRITICAL ALERT! 🚨\nAsteroid velocity parameter MISSING!\n⚡ Cannot calculate collision trajectory without speed data!\n🎯 Please configure asteroid velocity for impact simulation!',
+                'warning'
+            );
+            return;
+        }
+
+        if (!composition) {
+            this.simulator.notificationManager.showNotification(
+                '🚨 CRITICAL ALERT! 🚨\nAsteroid composition UNKNOWN!\n⚡ Cannot assess impact damage without material analysis!\n🎯 Please select asteroid composition for threat assessment!',
+                'warning'
+            );
+            return;
+        }
+
+        if (!latitude || !longitude) {
+            this.simulator.notificationManager.showNotification(
+                '🚨 CRITICAL ALERT! 🚨\nImpact coordinates UNDEFINED!\n⚡ Cannot calculate destruction radius without target location!\n🎯 Please set impact coordinates for damage assessment!',
+                'warning'
+            );
+            return;
+        }
+
+        // Run the impact simulation
+        this.runImpactSimulation();
+
+        // Show gamified notification
+        if (this.simulator.notificationManager) {
+            this.simulator.notificationManager.showNotification(
+                '💥 CATASTROPHIC IMPACT SIMULATION INITIATED! 🚨\nAnalyzing collision effects and planetary devastation...\n⚡ Calculating destruction radius and casualty estimates...',
+                'success'
+            );
+        }
+
+        // Enable defense button after successful impact simulation
+        const launchDefenseBtn = document.getElementById('launch-defense');
+        if (launchDefenseBtn) {
+            launchDefenseBtn.disabled = false;
+            launchDefenseBtn.classList.remove('disabled');
+        }
+    }
+
+    launchDefense() {
+        // Check if impact simulation has been run first
+        if (!this.simulator.mapManager || !this.simulator.mapManager.isSimulationActive) {
+            this.simulator.notificationManager.showNotification(
+                '⚠️ Please run Impact Simulation first before launching defense!',
+                'warning'
+            );
+            return;
+        }
+
+        // Show gamified notification
+        if (this.simulator.notificationManager) {
+            this.simulator.notificationManager.showNotification(
+                '🚀 KINETIC IMPACTOR LAUNCHED! 🛡️\nDefense system deployed and targeting asteroid...\n🎯 Calculating optimal impact trajectory...\n⚡ Preparing for maximum deflection force...',
+                'success'
+            );
+        }
+
+        // Here you could add additional defense-specific logic
+        // For example, showing defense effectiveness or modifying impact results
+        this.showDefenseResults();
+    }
+
+    showDefenseResults() {
+        // Show additional information about defense effectiveness
+        if (this.simulator.notificationManager) {
+            // Clear any existing notifications first
+            this.simulator.notificationManager.clearAll();
+            
+            setTimeout(() => {
+                this.simulator.notificationManager.showNotification(
+                    '🛡️ DEFENSE SUCCESSFUL! ⚡\nKinetic Impactor achieved 85% deflection effectiveness!\n🎯 Asteroid trajectory successfully altered!\n📊 Threat level reduced from CRITICAL to MINIMAL!',
+                    'info',
+                    3000 // 3 seconds duration
+                );
+            }, 1000);
+            
+            setTimeout(() => {
+                this.simulator.notificationManager.showNotification(
+                    '🏆 MISSION ACCOMPLISHED! 🌍\nYou saved Planet Earth from destruction! 🎉\n👨‍🚀 Congratulations, Space Defense Hero! 🚀\n🏅 Achievement Unlocked: Planetary Savior! ⭐',
+                    'success',
+                    5000 // 5 seconds duration
+                );
+            }, 4500); // Start after first alert is about to close
+        }
+    }
+
+    showImpactDetails() {
+        // Check if there's an active simulation
+        if (!this.simulator.mapManager || !this.simulator.mapManager.isSimulationActive) {
+            this.simulator.notificationManager.showNotification(
+                '🚨 NO SIMULATION DATA AVAILABLE! 🚨\n⚡ Impact simulation required for detailed analysis!\n🎯 Please run Impact Simulation first to view threat details!\n🛡️ Defense systems need threat assessment data!',
+                'warning'
+            );
+            return;
+        }
+
+        // Get current coordinates and show simulation modal
+        const lat = this.simulator.simulationManager.parameters.latitude;
+        const lng = this.simulator.simulationManager.parameters.longitude;
+        
+        if (lat && lng) {
+            const latlng = { lat: lat, lng: lng };
+            this.simulator.mapManager.showSimulationModal(latlng);
         }
     }
 
@@ -604,14 +752,21 @@ class EventManager {
                 this.simulator.mapManager.map.removeLayer(this.simulator.mapManager.locationMarker);
                 this.simulator.mapManager.locationMarker = null;
             }
-            
-            // Show notification
-            if (this.simulator.notificationManager) {
-                this.simulator.notificationManager.showNotification(
-                    'Simulation reset to default',
-                    'success'
-                );
-            }
+        }
+
+        // Disable defense button after reset
+        const launchDefenseBtn = document.getElementById('launch-defense');
+        if (launchDefenseBtn) {
+            launchDefenseBtn.disabled = true;
+            launchDefenseBtn.classList.add('disabled');
+        }
+        
+        // Show gamified notification
+        if (this.simulator.notificationManager) {
+            this.simulator.notificationManager.showNotification(
+                '🔄 MISSION RESET INITIATED! 🔧\nAll defense systems returned to standby position...\n🛡️ Planetary Defense Grid: ONLINE\n🚀 Ready for new asteroid threat! ⚡',
+                'info'
+            );
         }
     }
 
@@ -635,7 +790,7 @@ class EventManager {
     resetSimulation() {
         this.simulator.simulationManager.resetSimulation();
         this.simulator.notificationManager.showNotification(
-            'Simulation reset',
+            '🔄 Mission Reset! All parameters restored to default values.',
             'info'
         );
     }

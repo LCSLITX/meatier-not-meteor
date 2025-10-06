@@ -345,7 +345,8 @@ class ThreeJSViewer {
                     neo.collisionRisk, 
                     neo.color, 
                     index,
-                    neo.nasaData // Pass NASA data if available
+                    neo.nasaData, // Pass NASA data if available
+                    neo.special // Pass special type if available
                 );
                 
                 this.scene.add(neoObject.orbitObject);
@@ -453,8 +454,9 @@ class ThreeJSViewer {
         // Top 500 most dangerous NEOs (simplified dataset)
         const dangerousNEOs = [
             // Tier 1: Extremely High Risk (>1% collision probability)
-            { name: '99942 Apophis', size: 0.37, distance: 0.92, period: 324, collisionRisk: 0.37, color: 0xff0000, diameter: 370, velocity: 30000, classification: 'Aten', discovered: '2004' },
-            { name: '101955 Bennu', size: 0.49, distance: 1.13, period: 436, collisionRisk: 0.51, color: 0xff0000, diameter: 490, velocity: 28000, classification: 'Apollo', discovered: '1999' },
+            { name: '99942 Apophis', size: 0.37, distance: 0.92, period: 324, collisionRisk: 0.37, color: 0xff0000, diameter: 370, velocity: 30000, classification: 'Aten', discovered: '2004', special: 'apophis' },
+            { name: '101955 Bennu', size: 0.49, distance: 1.13, period: 436, collisionRisk: 0.51, color: 0xff0000, diameter: 490, velocity: 28000, classification: 'Apollo', discovered: '1999', special: 'bennu' },
+            { name: 'Impactor 2025', size: 0.65, distance: 0.85, period: 298, collisionRisk: 0.42, color: 0xff3300, diameter: 650, velocity: 32000, classification: 'Apollo', discovered: '2025', special: 'impactor2025' },
             { name: '1950 DA', size: 1.3, distance: 0.89, period: 809, collisionRisk: 0.012, color: 0xff4400, diameter: 1300, velocity: 25000, classification: 'Apollo', discovered: '1950' },
             
             // Tier 2: High Risk (0.1% - 1% collision probability)
@@ -1178,6 +1180,9 @@ class CelestialBody {
         } else if (this.identifier === 'EARTH') {
             // Earth - special textured material
             material = this.createEarthMaterial();
+        } else if (this.special === 'impactor2025') {
+            // Impactor 2025 - special glowing material
+            material = this.createImpactor2025Material();
         } else {
             // Other planets - standard material
             material = new THREE.MeshStandardMaterial({
@@ -1188,38 +1193,27 @@ class CelestialBody {
         }
         return new THREE.Mesh(geometry, material);
     }
-
-    createEarthMaterial() {
-        // Create Earth-like texture procedurally
+    
+    createImpactor2025Material() {
+        // Create a distinctive material for the impactor 2025 similar to Earth
         const canvas = document.createElement('canvas');
         canvas.width = 512;
         canvas.height = 256;
         const ctx = canvas.getContext('2d');
         
-        // Create gradient for Earth
-        const gradient = ctx.createLinearGradient(0, 0, 0, 256);
-        gradient.addColorStop(0, '#4a90e2'); // Ocean blue
-        gradient.addColorStop(0.3, '#5ba3f5'); // Light blue
-        gradient.addColorStop(0.7, '#2e5c8a'); // Deep blue
-        gradient.addColorStop(1, '#1e3a5f'); // Dark blue
+        // Create asteroid-like texture with dark rocky surface
+        const gradient = ctx.createRadialGradient(256, 128, 0, 256, 128, 256);
+        gradient.addColorStop(0, '#2c2c2c'); // Dark center
+        gradient.addColorStop(0.4, '#404040'); // Medium gray
+        gradient.addColorStop(0.8, '#606060'); // Light gray
+        gradient.addColorStop(1, '#808080'); // Lighter gray edges
         
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 512, 256);
         
-        // Add land masses
-        ctx.fillStyle = '#2d5a27'; // Forest green
-        for (let i = 0; i < 50; i++) {
-            const x = Math.random() * 512;
-            const y = Math.random() * 256;
-            const size = Math.random() * 30 + 10;
-            ctx.beginPath();
-            ctx.arc(x, y, size, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        
-        // Add some brown land
-        ctx.fillStyle = '#8b4513'; // Brown
-        for (let i = 0; i < 30; i++) {
+        // Add rocky surface details
+        ctx.fillStyle = '#1a1a1a'; // Very dark rock
+        for (let i = 0; i < 100; i++) {
             const x = Math.random() * 512;
             const y = Math.random() * 256;
             const size = Math.random() * 20 + 5;
@@ -1228,10 +1222,16 @@ class CelestialBody {
             ctx.fill();
         }
         
-        // Add white polar caps
-        ctx.fillStyle = '#ffffff'; // White
-        ctx.fillRect(0, 0, 512, 30); // North pole
-        ctx.fillRect(0, 226, 512, 30); // South pole
+        // Add some lighter rock formations
+        ctx.fillStyle = '#505050'; // Medium gray rock
+        for (let i = 0; i < 50; i++) {
+            const x = Math.random() * 512;
+            const y = Math.random() * 256;
+            const size = Math.random() * 15 + 3;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
         
         const texture = new THREE.CanvasTexture(canvas);
         texture.wrapS = THREE.RepeatWrapping;
@@ -1239,9 +1239,196 @@ class CelestialBody {
         
         return new THREE.MeshStandardMaterial({
             map: texture,
-            roughness: 0.8,
-            metalness: 0.1
+            roughness: 0.9,
+            metalness: 0.1,
+            color: 0x444444
         });
+    }
+    
+    addImpactor2025Effects() {
+        // Create particle system for debris trail effect
+        const particleCount = 100;
+        const particleGeometry = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        const particleColors = new Float32Array(particleCount * 3);
+        const particleSizes = new Float32Array(particleCount);
+        
+        for (let i = 0; i < particleCount; i++) {
+            const i3 = i * 3;
+            
+            // Create particles behind the asteroid (trail effect)
+            const angle = Math.random() * Math.PI * 2;
+            const radius = this.size * (1.5 + Math.random() * 2);
+            const height = (Math.random() - 0.5) * this.size * 2;
+            
+            particlePositions[i3] = -radius * Math.cos(angle); // Behind the asteroid
+            particlePositions[i3 + 1] = height;
+            particlePositions[i3 + 2] = -radius * Math.sin(angle);
+            
+            // Gray/brown particles for rock debris
+            const grayValue = 0.3 + Math.random() * 0.4;
+            particleColors[i3] = grayValue;     // R
+            particleColors[i3 + 1] = grayValue; // G
+            particleColors[i3 + 2] = grayValue; // B
+            
+            particleSizes[i] = 0.2 + Math.random() * 0.6;
+        }
+        
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
+        particleGeometry.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 1.0,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.7,
+            sizeAttenuation: true
+        });
+        
+        this.particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+        this.mesh.add(this.particleSystem);
+        
+        // Initialize particle animation properties
+        this.particleVelocities = [];
+        for (let i = 0; i < particleCount; i++) {
+            this.particleVelocities.push({
+                x: (Math.random() - 0.5) * 0.02,
+                y: (Math.random() - 0.5) * 0.02,
+                z: (Math.random() - 0.5) * 0.02
+            });
+        }
+    }
+
+    createEarthMaterial() {
+        // Create realistic Earth texture procedurally
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        
+        // Create realistic Earth-like texture with continents
+        // Ocean base with gradient
+        const oceanGradient = ctx.createRadialGradient(512, 256, 0, 512, 256, 400);
+        oceanGradient.addColorStop(0, '#1e40af'); // Deep ocean blue (center)
+        oceanGradient.addColorStop(0.4, '#3b82f6'); // Ocean blue
+        oceanGradient.addColorStop(0.7, '#60a5fa'); // Light blue
+        oceanGradient.addColorStop(1, '#93c5fd'); // Shallow blue (edges)
+        
+        ctx.fillStyle = oceanGradient;
+        ctx.fillRect(0, 0, 1024, 512);
+        
+        // Add realistic continent shapes (simplified world map)
+        this.drawContinents(ctx);
+        
+        // Add atmospheric glow effect
+        const atmosphereGradient = ctx.createRadialGradient(512, 256, 200, 512, 256, 500);
+        atmosphereGradient.addColorStop(0, 'rgba(59, 130, 246, 0.1)');
+        atmosphereGradient.addColorStop(0.7, 'rgba(147, 197, 253, 0.2)');
+        atmosphereGradient.addColorStop(1, 'rgba(219, 234, 254, 0.3)');
+        
+        ctx.fillStyle = atmosphereGradient;
+        ctx.fillRect(0, 0, 1024, 512);
+        
+        // Add cloud layer
+        this.addCloudLayer(ctx);
+        
+        // Add white polar caps
+        ctx.fillStyle = '#f8fafc'; // White with slight blue tint
+        ctx.fillRect(0, 0, 1024, 40); // North pole
+        ctx.fillRect(0, 472, 1024, 40); // South pole
+        
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        
+        // Create normal map for surface detail
+        const normalCanvas = document.createElement('canvas');
+        normalCanvas.width = 512;
+        normalCanvas.height = 256;
+        const normalCtx = normalCanvas.getContext('2d');
+        
+        // Create simple normal map
+        const normalGradient = normalCtx.createLinearGradient(0, 0, 0, 256);
+        normalGradient.addColorStop(0, '#8080ff'); // Normal map blue
+        normalGradient.addColorStop(1, '#8080ff');
+        normalCtx.fillStyle = normalGradient;
+        normalCtx.fillRect(0, 0, 512, 256);
+        
+        const normalTexture = new THREE.CanvasTexture(normalCanvas);
+        
+        return new THREE.MeshStandardMaterial({
+            map: texture,
+            normalMap: normalTexture,
+            roughness: 0.9,
+            metalness: 0.0,
+            envMapIntensity: 0.3
+        });
+    }
+    
+    drawContinents(ctx) {
+        // North America (simplified)
+        ctx.fillStyle = '#22c55e'; // Forest green
+        ctx.beginPath();
+        ctx.ellipse(150, 120, 80, 60, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // South America
+        ctx.fillStyle = '#16a34a'; // Darker green
+        ctx.beginPath();
+        ctx.ellipse(180, 280, 40, 100, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Europe/Africa
+        ctx.fillStyle = '#15803d'; // Dark green
+        ctx.beginPath();
+        ctx.ellipse(480, 200, 60, 120, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Asia
+        ctx.fillStyle = '#22c55e'; // Forest green
+        ctx.beginPath();
+        ctx.ellipse(650, 150, 120, 80, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Australia
+        ctx.fillStyle = '#16a34a'; // Darker green
+        ctx.beginPath();
+        ctx.ellipse(750, 320, 50, 40, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Add some brown/desert areas
+        ctx.fillStyle = '#ca8a04'; // Brown/yellow
+        ctx.beginPath();
+        ctx.ellipse(550, 180, 40, 30, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Arctic regions
+        ctx.fillStyle = '#e5e7eb'; // Light gray
+        ctx.beginPath();
+        ctx.ellipse(300, 80, 200, 40, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    addCloudLayer(ctx) {
+        // Add white cloud patterns
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        
+        // Random cloud formations
+        for (let i = 0; i < 30; i++) {
+            const x = Math.random() * 1024;
+            const y = Math.random() * 512;
+            const size = Math.random() * 40 + 20;
+            
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Add smaller cloud details
+            ctx.beginPath();
+            ctx.arc(x + size * 0.5, y - size * 0.3, size * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 
     createLabel() {
@@ -1535,7 +1722,7 @@ class AsteroidBelt {
 
 // Individual NEO Class
 class IndividualNEO extends CelestialBody {
-    constructor(name, size, distance, period, collisionRisk, color, index, nasaData = null) {
+    constructor(name, size, distance, period, collisionRisk, color, index, nasaData = null, special = null) {
         super(name, size, null, color, false, `NEO-${index + 1}`);
         
         this.distance = distance;
@@ -1544,11 +1731,22 @@ class IndividualNEO extends CelestialBody {
         this.index = index;
         this.orbitSpeed = 0.01 / period; // Slower for longer periods
         this.nasaData = nasaData; // Store NASA data if available
+        this.special = special; // Store special type (apophis, bennu, impactor2025)
+        
+        // Animation properties for impactor 2025
+        this.animationProgress = 0;
+        this.animationSpeed = 0.002; // Speed of movement along collision path
+        this.collisionPathPoints = []; // Store collision path points
         
         // Create orbital system
         this.orbitObject = new THREE.Object3D();
         this.orbitObject.add(this.mesh);
         this.mesh.position.x = this.distance;
+        
+        // Add special effects for impactor 2025
+        if (this.special === 'impactor2025') {
+            this.addImpactor2025Effects();
+        }
         
         // Create and add label for NEOs
         this.label = this.createEnhancedLabel();
@@ -1559,10 +1757,7 @@ class IndividualNEO extends CelestialBody {
         // Create orbit line
         this.orbitLine = this.createOrbitLine();
         
-        // Create collision path if high risk
-        if (collisionRisk > 0.001) {
-            this.collisionPath = this.createCollisionPath();
-        }
+        // No collision path for impactor 2025 - removed red line
         
         // Enhanced label with risk information and NASA data
         this.createEnhancedLabel();
@@ -1573,10 +1768,19 @@ class IndividualNEO extends CelestialBody {
         const points = [];
         const segments = 200;
         
-        // NEOs have more eccentric orbits than planets
-        const eccentricity = Math.random() * 0.4 + 0.1; // 0.1 to 0.5
-        const semiMajorAxis = this.distance;
-        const inclination = Math.random() * 30 + 5; // 5 to 35 degrees
+        let eccentricity, semiMajorAxis, inclination;
+        
+        if (this.special === 'impactor2025') {
+            // Impact 2025: High eccentricity orbit that intersects Earth's orbit
+            eccentricity = 0.8; // Very high eccentricity for collision course
+            semiMajorAxis = this.distance;
+            inclination = 15; // Moderate inclination
+        } else {
+            // Other NEOs: Standard eccentric orbits
+            eccentricity = Math.random() * 0.4 + 0.1; // 0.1 to 0.5
+            semiMajorAxis = this.distance;
+            inclination = Math.random() * 30 + 5; // 5 to 35 degrees
+        }
         
         for (let i = 0; i <= segments; i++) {
             const angle = (i / segments) * Math.PI * 2;
@@ -1637,20 +1841,29 @@ class IndividualNEO extends CelestialBody {
         const points = [];
         const segments = 100;
         
+        // Create simple, direct collision trajectory for impactor 2025
+        const startDistance = this.distance;
+        const earthDistance = 60;
+        
         for (let i = 0; i <= segments; i++) {
-            const angle = (i / segments) * Math.PI * 2;
-            const x = this.distance * Math.cos(angle);
-            const z = this.distance * Math.sin(angle);
-            const y = Math.sin(angle * 3) * 5; // Wavy collision path
-            points.push(new THREE.Vector3(x, y, z));
+            const t = i / segments;
+            
+            // Simple linear interpolation from asteroid position to Earth
+            const x = startDistance * (1 - t) + earthDistance * t;
+            const z = Math.sin(t * Math.PI) * 10; // Slight curve
+            const y = Math.cos(t * Math.PI) * 8; // Slight curve
+            
+            const point = new THREE.Vector3(x, y, z);
+            points.push(point);
+            this.collisionPathPoints.push(point);
         }
         
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const material = new THREE.LineBasicMaterial({ 
             color: 0xff0000,
             transparent: true,
-            opacity: 0.8,
-            linewidth: 3
+            opacity: 0.9,
+            linewidth: 6
         });
         
         return new THREE.Line(geometry, material);
@@ -1669,12 +1882,16 @@ class IndividualNEO extends CelestialBody {
         const velocity = this.nasaData?.close_approach_data?.[0]?.relative_velocity?.kilometers_per_hour || 'N/A';
         const missDistance = this.nasaData?.close_approach_data?.[0]?.miss_distance?.astronomical || 'N/A';
         
+        // Get special information for important asteroids
+        const specialInfo = this.getSpecialAsteroidInfo();
+        
         const div = document.createElement('div');
         div.className = 'neo-label';
         div.innerHTML = `
             <div class="label-header">
                 <div class="label-name" style="color: ${this.tintColor};">${this.name}</div>
                 <div class="label-id">${this.identifier}</div>
+                ${specialInfo.badge ? `<div class="label-badge" style="background: ${specialInfo.badgeColor}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-top: 2px;">${specialInfo.badge}</div>` : ''}
             </div>
             <div class="label-info">
                 <div class="label-risk" style="color: ${riskLevel.color};">${riskLevel.text}: ${riskPercentage}%</div>
@@ -1682,6 +1899,7 @@ class IndividualNEO extends CelestialBody {
                 ${diameter !== 'N/A' ? `<div class="label-diameter">Size: ${Math.round(diameter)}m</div>` : ''}
                 ${velocity !== 'N/A' ? `<div class="label-velocity">Speed: ${Math.round(velocity)} km/h</div>` : ''}
                 ${missDistance !== 'N/A' ? `<div class="label-distance">Closest: ${parseFloat(missDistance).toFixed(3)} AU</div>` : ''}
+                ${specialInfo.details ? `<div class="label-special" style="color: #fbbf24; font-weight: bold;">${specialInfo.details}</div>` : ''}
                 ${this.nasaData ? `<div class="label-source" style="color: #4ade80;">NASA Data</div>` : ''}
             </div>
         `;
@@ -1711,16 +1929,128 @@ class IndividualNEO extends CelestialBody {
             return { text: 'LOW RISK', color: '#44ff44' };
         }
     }
+    
+    getSpecialAsteroidInfo() {
+        switch(this.special) {
+            case 'apophis':
+                return {
+                    badge: 'CRITICAL THREAT',
+                    badgeColor: '#dc2626',
+                    details: 'Close approach 2029, potential impact 2068'
+                };
+            case 'bennu':
+                return {
+                    badge: 'OSIRIS-REx TARGET',
+                    badgeColor: '#059669',
+                    details: 'Sample return mission completed, potential impact 2182'
+                };
+            case 'impactor2025':
+                return {
+                    badge: 'IMMINENT THREAT',
+                    badgeColor: '#dc2626',
+                    details: 'Hypothetical collision course 2025'
+                };
+            default:
+                return {
+                    badge: null,
+                    badgeColor: null,
+                    details: null
+                };
+        }
+    }
 
     animate() {
         super.animate();
-        // Rotate the orbit object to make the NEO orbit around the sun
-        this.orbitObject.rotation.y += this.orbitSpeed;
         
-        // Animate collision path if it exists
-        if (this.collisionPath && this.collisionPath.visible) {
-            this.collisionPath.rotation.y += 0.001;
+        // Enhanced orbital motion with realistic physics
+        if (this.special === 'apophis') {
+            // Apophis: Fast, close approach
+            this.orbitObject.rotation.y += this.orbitSpeed * 1.5;
+            // Add slight wobble to simulate gravitational effects
+            this.mesh.rotation.x += 0.01;
+            this.mesh.rotation.z += 0.005;
+        } else if (this.special === 'bennu') {
+            // Bennu: Moderate speed with slight variation
+            this.orbitObject.rotation.y += this.orbitSpeed * 1.2;
+            // Add rotation variations
+            this.mesh.rotation.x += 0.008;
+            this.mesh.rotation.y += 0.015;
+        } else if (this.special === 'impactor2025') {
+            // 2025 KT1: Move along collision path
+            if (this.collisionPathPoints && this.collisionPathPoints.length > 0) {
+                // Update animation progress
+                this.animationProgress += this.animationSpeed;
+                
+                // Reset animation when it reaches the end
+                if (this.animationProgress >= 1) {
+                    this.animationProgress = 0;
+                }
+                
+                // Calculate position along collision path
+                const pathIndex = Math.floor(this.animationProgress * (this.collisionPathPoints.length - 1));
+                const nextIndex = Math.min(pathIndex + 1, this.collisionPathPoints.length - 1);
+                const t = (this.animationProgress * (this.collisionPathPoints.length - 1)) - pathIndex;
+                
+                if (this.collisionPathPoints[pathIndex] && this.collisionPathPoints[nextIndex]) {
+                    // Interpolate between path points for smooth movement
+                    const currentPoint = this.collisionPathPoints[pathIndex];
+                    const nextPoint = this.collisionPathPoints[nextIndex];
+                    
+                    const x = currentPoint.x + (nextPoint.x - currentPoint.x) * t;
+                    const y = currentPoint.y + (nextPoint.y - currentPoint.y) * t;
+                    const z = currentPoint.z + (nextPoint.z - currentPoint.z) * t;
+                    
+                    // Update asteroid position
+                    this.mesh.position.set(x, y, z);
+                    
+                    // Add dramatic rotation for imminent threat
+                    this.mesh.rotation.x += 0.025;
+                    this.mesh.rotation.y += 0.035;
+                    this.mesh.rotation.z += 0.015;
+                    
+                    // Animate particle system (debris trail)
+                    if (this.particleSystem && this.particleVelocities) {
+                        const positions = this.particleSystem.geometry.attributes.position.array;
+                        
+                        for (let i = 0; i < this.particleVelocities.length; i++) {
+                            const i3 = i * 3;
+                            
+                            // Update particle positions
+                            positions[i3] += this.particleVelocities[i].x;
+                            positions[i3 + 1] += this.particleVelocities[i].y;
+                            positions[i3 + 2] += this.particleVelocities[i].z;
+                            
+                            // Reset particles that drift too far
+                            if (Math.abs(positions[i3]) > this.size * 5 || 
+                                Math.abs(positions[i3 + 1]) > this.size * 5 || 
+                                Math.abs(positions[i3 + 2]) > this.size * 5) {
+                                
+                                // Respawn particle behind asteroid
+                                const angle = Math.random() * Math.PI * 2;
+                                const radius = this.size * (1.5 + Math.random() * 2);
+                                const height = (Math.random() - 0.5) * this.size * 2;
+                                
+                                positions[i3] = -radius * Math.cos(angle);
+                                positions[i3 + 1] = height;
+                                positions[i3 + 2] = -radius * Math.sin(angle);
+                            }
+                        }
+                        
+                        this.particleSystem.geometry.attributes.position.needsUpdate = true;
+                    }
+                }
+            }
+        } else {
+            // Standard NEO motion
+            this.orbitObject.rotation.y += this.orbitSpeed;
+            this.mesh.rotation.x += 0.005;
+            this.mesh.rotation.y += 0.01;
         }
+        
+        // No collision path animation needed
+        
+        // Add orbital precession for realistic motion
+        this.orbitObject.rotation.x += 0.0001 * Math.sin(Date.now() * 0.0001);
     }
 }
 
