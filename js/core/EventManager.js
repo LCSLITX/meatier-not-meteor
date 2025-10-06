@@ -194,43 +194,39 @@ class EventManager {
     bind3DFilterEvents() {
         // Check if threeJSManager is available
         if (!this.simulator.threeJSManager) {
-            console.warn('ThreeJSManager not available, skipping 3D filter events');
+            console.warn('EventManager: ThreeJSManager not available, skipping 3D filter events');
             return;
         }
 
         // Planet toggle
         const planetsToggle = document.getElementById('toggle-planets');
         if (planetsToggle) {
-            planetsToggle.addEventListener('click', () => {
-                const show = planetsToggle.checked;
-                this.simulator.threeJSManager.togglePlanets(show);
+            planetsToggle.addEventListener('change', (e) => {
+                this.simulator.threeJSManager.togglePlanets(e.target.checked);
             });
         }
 
         // Asteroid toggle
         const asteroidsToggle = document.getElementById('toggle-asteroids');
         if (asteroidsToggle) {
-            asteroidsToggle.addEventListener('click', () => {
-                const show = asteroidsToggle.checked;
-                this.simulator.threeJSManager.toggleAsteroids(show);
+            asteroidsToggle.addEventListener('change', (e) => {
+                this.simulator.threeJSManager.toggleAsteroids(e.target.checked);
             });
         }
 
         // Orbit toggle
         const orbitsToggle = document.getElementById('toggle-orbits');
         if (orbitsToggle) {
-            orbitsToggle.addEventListener('click', () => {
-                const show = orbitsToggle.checked;
-                this.simulator.threeJSManager.toggleOrbits(show);
+            orbitsToggle.addEventListener('change', (e) => {
+                this.simulator.threeJSManager.toggleOrbits(e.target.checked);
             });
         }
 
         // Labels toggle
         const labelsToggle = document.getElementById('toggle-labels');
         if (labelsToggle) {
-            labelsToggle.addEventListener('click', () => {
-                const show = labelsToggle.checked;
-                this.simulator.threeJSManager.toggleLabels(show);
+            labelsToggle.addEventListener('change', (e) => {
+                this.simulator.threeJSManager.toggleLabels(e.target.checked);
             });
         }
 
@@ -247,30 +243,6 @@ class EventManager {
         if (resetViewBtn) {
             resetViewBtn.addEventListener('click', () => {
                 this.simulator.threeJSManager.reset3DView();
-            });
-        }
-
-        // Zoom controls
-        const zoomInBtn = document.getElementById('zoom-in');
-        const zoomOutBtn = document.getElementById('zoom-out');
-        
-        if (zoomInBtn) {
-            zoomInBtn.addEventListener('click', () => {
-                this.simulator.threeJSManager.updateZoom(1.2);
-            });
-        }
-        
-        if (zoomOutBtn) {
-            zoomOutBtn.addEventListener('click', () => {
-                this.simulator.threeJSManager.updateZoom(0.8);
-            });
-        }
-
-        // Toggle filters visibility
-        const toggleFiltersBtn = document.getElementById('toggle-filters');
-        if (toggleFiltersBtn) {
-            toggleFiltersBtn.addEventListener('click', () => {
-                this.simulator.threeJSManager.toggleFiltersVisibility();
             });
         }
     }
@@ -672,14 +644,15 @@ class EventManager {
         
         this.simulator.simulationManager.switchView(view);
         
-        // Update button states
-        const view2DBtn = document.querySelector('[data-view="2d"]');
-        const view3DBtn = document.querySelector('[data-view="3d"]');
+        // Update viewport visibility
+        const viewport3D = document.getElementById('viewport-3d');
+        const viewport2D = document.getElementById('viewport-2d');
         
-        if (view2DBtn && view3DBtn) {
+        if (viewport3D && viewport2D) {
             if (view === '2d') {
-                view2DBtn.classList.add('active');
-                view3DBtn.classList.remove('active');
+                // Show 2D, hide 3D
+                viewport3D.classList.remove('active');
+                viewport2D.classList.add('active');
                 
                 // Ensure map is initialized when switching to 2D
                 if (this.simulator.mapManager) {
@@ -697,6 +670,31 @@ class EventManager {
                         }, 200);
                     }
                 }
+            } else {
+                // Show 3D, hide 2D
+                viewport2D.classList.remove('active');
+                viewport3D.classList.add('active');
+                
+                // Ensure 3D is initialized when switching to 3D
+                if (this.simulator.threeJSManager) {
+                    setTimeout(() => {
+                        if (!this.simulator.threeJSManager.scene) {
+                            this.simulator.threeJSManager.setupThreeJS();
+                            this.simulator.threeJSManager.createSolarSystem();
+                        }
+                    }, 100);
+                }
+            }
+        }
+        
+        // Update button states
+        const view2DBtn = document.querySelector('[data-view="2d"]');
+        const view3DBtn = document.querySelector('[data-view="3d"]');
+        
+        if (view2DBtn && view3DBtn) {
+            if (view === '2d') {
+                view2DBtn.classList.add('active');
+                view3DBtn.classList.remove('active');
             } else {
                 view3DBtn.classList.add('active');
                 view2DBtn.classList.remove('active');

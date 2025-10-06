@@ -42,41 +42,53 @@ class AsteroidDefenseSimulator {
                 this.initializeLeafletMap();
             
             // Setup Three.js scene after DOM is ready
-            setTimeout(() => {
+                setTimeout(() => {
                 try {
-                    // Check if Three.js is loaded
-                    if (typeof THREE === 'undefined') {
-                        setTimeout(() => {
+                    console.log('Starting Three.js initialization...');
+        
+        // Check if Three.js is loaded
+        if (typeof THREE === 'undefined') {
+                        console.log('Three.js not loaded, retrying in 2 seconds...');
+                setTimeout(() => {
                             this.setupThreeJS();
                             this.initializeSolarSystemViewer();
                             // Bind events after Three.js is ready
                             this.eventManager.bindEvents();
                         }, 2000);
-                        return;
-                    }
-                    
+            return;
+        }
+        
+                    console.log('Three.js is loaded, setting up...');
+                    console.log('Container exists:', !!document.getElementById('orbit-canvas'));
+                    console.log('Container dimensions:', document.getElementById('orbit-canvas')?.getBoundingClientRect());
                     const success = this.setupThreeJS();
+                    console.log('Three.js setup result:', success);
+                    
                     if (success) {
+                        console.log('Creating solar system...');
                         this.initializeSolarSystemViewer();
+                        console.log('Solar system created, binding events...');
                         // Bind events after Three.js is ready
                         this.eventManager.bindEvents();
-                    } else {
+                        console.log('Events bound successfully');
+        } else {
+                        console.error('Three.js setup failed, binding events anyway...');
                         // Still bind events even if Three.js fails
                         this.eventManager.bindEvents();
                     }
-                } catch (error) {
+        } catch (error) {
                     console.error('Three.js setup error:', error);
                     // Still bind events even if Three.js fails
                     this.eventManager.bindEvents();
                 }
-            }, 1500);
+            }, 3000);
             
             // Update UI
             this.updateUI();
             
             // Setup global functions
             this.setupGlobalFunctions();
-            
+
         } catch (error) {
             // Show error in console for debugging
             console.error('Initialization error:', error);
@@ -98,13 +110,14 @@ class AsteroidDefenseSimulator {
             }
             return false;
         } catch (error) {
+            console.error('Error setting up Three.js:', error);
             return false;
         }
     }
 
     initializeLeafletMap() {
         // Initialize map after a delay to ensure DOM is ready
-                setTimeout(() => {
+        setTimeout(() => {
             this.mapManager.initializeLeafletMap();
                 }, 500);
     }
@@ -112,12 +125,13 @@ class AsteroidDefenseSimulator {
     initializeSolarSystemViewer() {
         try {
             if (this.threeJSManager) {
-                this.threeJSManager.createSolarSystem();
+                return this.threeJSManager.createSolarSystem();
             }
+            return false;
         } catch (error) {
+            console.error('Error initializing solar system viewer:', error);
             return false;
         }
-        return true;
     }
 
     setupGlobalFunctions() {
@@ -148,6 +162,13 @@ class AsteroidDefenseSimulator {
                 this.mapManager.map.setView([40.7128, -74.0060], 8);
             }
         };
+
+        // Window resize handler
+        window.addEventListener('resize', () => {
+            if (this.threeJSManager) {
+                this.threeJSManager.handleResize();
+            }
+        });
         
         window.openMenu = () => {
             if (this.sidebarManager) {

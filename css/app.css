@@ -481,28 +481,51 @@
     overflow-y: auto;
 }
 
+/* Specific viewport definitions */
 .viewport-container.active {
     display: block;
 }
 
 /* 3D Viewport */
 #viewport-3d {
-    background: var(--space-bg) !important;
-    min-height: 100vh !important;
-    height: 100vh !important;
-    position: relative !important;
-    z-index: 1 !important;
+    background: var(--space-bg);
+    min-height: 400px;
+    height: 100%;
+    position: relative;
+    z-index: 1;
+    display: none; /* Hidden by default */
+}
+
+/* Show 3D viewport when active */
+#viewport-3d.active {
+    display: block;
 }
 
 #orbit-canvas {
     width: 100% !important;
     height: 100% !important;
     display: block !important;
-    min-height: 400px !important;
-    background: #000011 !important;
-    position: relative !important;
-    z-index: 1 !important;
+    min-height: 400px;
+    background: #000011;
+    position: relative;
+    z-index: 1;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    outline: none;
+    border: 2px solid red !important; /* Debug border */
 }
+
+/* Ensure canvas is visible */
+#orbit-canvas canvas {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    outline: none;
+    border: 2px solid blue !important; /* Debug border */
+    background: #ff0000 !important; /* Debug background */
+}
+
+/* Placeholder content removed - Three.js canvas is back */
 
 /* Viewport Overlay */
 .viewport-overlay {
@@ -552,11 +575,7 @@
     position: relative;
 }
 
-#viewport-2d.active {
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
+/* Removed duplicate #viewport-2d.active definition */
 
 .impact-map-2d {
     display: flex;
@@ -1254,24 +1273,19 @@
     overflow: hidden;
 }
 
-.viewport-container.active {
-    display: flex;
-    flex-direction: column;
-}
+/* Removed duplicate viewport-container.active definition */
 
-/* 3D Viewport specific */
-#viewport-3d.active {
-    display: block;
+/* 3D Viewport specific styles moved to main definition above */
+
+/* 2D Viewport specific */
+#viewport-2d.active {
+    display: flex !important;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
 }
 
 /* 3D Canvas Styles */
-#orbit-canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-    background: #0a0e1a;
-    border-radius: var(--radius-lg);
-}
 
 #leaflet-map {
     width: 100%;
