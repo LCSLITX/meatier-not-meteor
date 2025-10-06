@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asteroid Defense Simulator</title>
+    <title>Asteroid Defense Simulator - Kinetic Impactor Mission</title>
     <!-- CSS Modular -->
     <link rel="stylesheet" href="css/base/variables.css">
     <link rel="stylesheet" href="css/base/reset.css">
@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="css/components/forms.css">
     <link rel="stylesheet" href="css/components/modals.css">
     <link rel="stylesheet" href="css/components/statistics.css">
+    <link rel="stylesheet" href="css/components/gamification.css">
     <link rel="stylesheet" href="css/layout/sidebar.css">
     <link rel="stylesheet" href="css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -25,7 +26,7 @@
             <div class="logo-container">
                
                 <h1>Asteroid Defense Simulator</h1>
-                <p>Planetary Defense Simulation Platform</p>
+                <p>Kinetic Impactor Mission</p>
             </div>
             <div class="loading-bar">
                 <div class="loading-progress"></div>
@@ -47,7 +48,7 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h1><i class="fas fa-shield-alt"></i> Asteroid Defense</h1>
-                <p>Planetary Defense Simulator</p>
+                <p>Kinetic Impactor Mission</p>
                 <button class="sidebar-close" id="sidebar-close">
                     <i class="fas fa-times"></i>
                 </button>
@@ -79,6 +80,7 @@
                     <div class="parameter-group">
                         <label for="composition">Composition</label>
                         <select id="composition" class="control-select">
+                            <option value="">Select Composition</option>
                             <option value="rocky">Rocky</option>
                             <option value="metallic">Metallic</option>
                             <option value="icy">Icy</option>
@@ -99,32 +101,17 @@
                     </div>
                 </div>
 
-            <!-- 3D Controls -->
-            <div class="control-section" id="3d-controls">
-                <h3><i class="fas fa-cube"></i> 3D Controls</h3>
-                <div id="3d-filters-panel">
-                    <!-- 3D filters will be populated by JavaScript -->
-                </div>
-            </div>
 
                 <!-- Defense Strategy -->
                 <div class="control-section">
                     <h3><i class="fas fa-shield-alt"></i> Defense Strategy</h3>
                     
                     <div class="defense-strategies-vertical">
-                        <button class="defense-strategy-btn" data-strategy="kinetic">
+                        <button class="defense-strategy-btn active" data-strategy="kinetic">
                             <i class="fas fa-bullseye"></i>
                             <div class="strategy-info">
                                 <span class="strategy-name">Kinetic Impactor</span>
                                 <span class="strategy-desc">Deflect asteroid with kinetic impactor</span>
-                            </div>
-                        </button>
-                        
-                        <button class="defense-strategy-btn" data-strategy="gravity">
-                            <i class="fas fa-magnet"></i>
-                            <div class="strategy-info">
-                                <span class="strategy-name">Gravity Tractor</span>
-                                <span class="strategy-desc">Use gravitational pull to deflect</span>
                             </div>
                         </button>
                     </div>
@@ -136,16 +123,31 @@
                             <div class="slider-value" id="time-value">24 hours</div>
                         </div>
                     </div>
+
+                    <button type="button" class="btn-secondary disabled" id="launch-defense" disabled>
+                        <i class="fas fa-rocket"></i> Launch Defense
+                    </button>
                 </div>
+
 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
-                    <button type="button" class="btn-primary" id="run-simulation">
-                        <i class="fas fa-play"></i> Simulate
-                    </button>
-                    <button type="button" class="btn-secondary" id="reset-simulation">
-                        <i class="fas fa-redo"></i> Reset
-                    </button>
+                    <div class="button-group">
+                        <h4><i class="fas fa-play-circle"></i> Mission Actions</h4>
+                        <button type="button" class="btn-primary" id="launch-impact">
+                            <i class="fas fa-bullseye"></i> Launch Impact
+                        </button>
+                    </div>
+                    
+                    <div class="button-group">
+                        <h4><i class="fas fa-tools"></i> Controls</h4>
+                        <button type="button" class="btn-secondary" id="reset-simulation">
+                            <i class="fas fa-redo"></i> Reset Mission
+                        </button>
+                        <button type="button" class="btn-secondary" id="view-impact-details">
+                            <i class="fas fa-info-circle"></i> View Impact Details
+                        </button>
+                    </div>
                 </div>
             </div>
         </aside>
@@ -155,10 +157,10 @@
             <!-- View Controls -->
             <div class="view-controls-top">
                 <a href="3d-viewer.html" class="view-btn">
-                    <i class="fas fa-cube"></i> 3D Visualization
+                    <i class="fas fa-cube"></i> 3D Solar System
                 </a>
                 <button class="view-btn active" data-view="2d">
-                    <i class="fas fa-map"></i> Impact Map
+                    <i class="fas fa-map"></i> Impact Simulation
                 </button>
             </div>
 
@@ -204,7 +206,8 @@
                     
                     <!-- Statistics Panel (only for 2D view) -->
                     <div class="stats-panel-2d">
-                        <h3><i class="fas fa-chart-line"></i> Statistics</h3>
+                        <h3><i class="fas fa-chart-line"></i> Impact Statistics</h3>
+                        
                         
                         <div class="stats-grid">
                             <div class="stat-card">
@@ -245,7 +248,7 @@
                                     <i class="fas fa-wave-square"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <div class="stat-value" id="tsunami-stat">18m</div>
+                                    <div class="stat-value" id="tsunami-stat">0m</div>
                                     <div class="stat-label">Tsunami Height</div>
                                     <div class="stat-description">Maximum Height</div>
                                 </div>
