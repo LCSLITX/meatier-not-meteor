@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Solar System Viewer - Asteroid Defense Simulator</title>
+    <!-- CSS Modular -->
+    <link rel="stylesheet" href="css/base/variables.css">
+    <link rel="stylesheet" href="css/base/reset.css">
+    <link rel="stylesheet" href="css/components/splash.css">
+    <link rel="stylesheet" href="css/components/buttons.css">
+    <link rel="stylesheet" href="css/components/forms.css">
+    <link rel="stylesheet" href="css/components/modals.css">
+    <link rel="stylesheet" href="css/components/statistics.css">
+    <link rel="stylesheet" href="css/components/threejs-viewer.css">
+    <link rel="stylesheet" href="css/layout/sidebar.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Mapbox removed - using Leaflet instead -->
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Loading 3D Solar System...</h3>
+            <p>Initializing Three.js and creating celestial bodies</p>
+        </div>
+    </div>
+
+    <div class="viewer-container">
+        <!-- Sidebar Toggle -->
+        <button class="sidebar-toggle" id="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <div class="viewer-sidebar" id="sidebar">
+            <!-- Sidebar Header -->
+            <div class="sidebar-header">
+                <h1><i class="fas fa-globe"></i> 3D Solar System</h1>
+                <p>Interactive Space Viewer</p>
+                <button class="sidebar-close" id="sidebar-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+
+            <!-- Solar System Info -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-info-circle"></i> Solar System</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Planets</div>
+                        <div class="info-value" id="planet-count">8</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Asteroids</div>
+                        <div class="info-value" id="asteroid-count">4300+</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Orbits</div>
+                        <div class="info-value" id="orbit-count">8</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Labels</div>
+                        <div class="info-value" id="label-count">8</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Controls -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-sliders-h"></i> Display Controls</h3>
+                
+                <div class="control-group">
+                    <h4>Visibility</h4>
+                    <div class="control-toggle">
+                        <input type="checkbox" id="toggle-planets" checked>
+                        <label for="toggle-planets">Show Planets</label>
+                    </div>
+                    <div class="control-toggle">
+                        <input type="checkbox" id="toggle-asteroids" checked>
+                        <label for="toggle-asteroids">Show Asteroids</label>
+                    </div>
+                    <div class="control-toggle">
+                        <input type="checkbox" id="toggle-orbits" checked>
+                        <label for="toggle-orbits">Show Orbits</label>
+                    </div>
+                    <div class="control-toggle">
+                        <input type="checkbox" id="toggle-labels" checked>
+                        <label for="toggle-labels">Show Labels</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h4>NEO Filters</h4>
+                    <div class="control-toggle">
+                        <input type="checkbox" id="toggle-individual-neos" checked>
+                        <label for="toggle-individual-neos">Show Individual NEOs</label>
+                    </div>
+                    <div class="control-toggle">
+                        <input type="checkbox" id="toggle-neo-orbits" checked>
+                        <label for="toggle-neo-orbits">Show NEO Orbits</label>
+                    </div>
+                    <div class="control-toggle">
+                        <input type="checkbox" id="toggle-collision-paths" checked>
+                        <label for="toggle-collision-paths">Show Collision Paths</label>
+                    </div>
+                    <div class="control-group">
+                        <h4>Risk Level</h4>
+                        <select id="neo-risk-filter" class="control-select">
+                            <option value="all">All NEOs</option>
+                            <option value="high" selected>High Risk (>0.1%)</option>
+                            <option value="medium">Medium Risk (0.01-0.1%)</option>
+                            <option value="low">Low Risk (<0.01%)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <h4>Individual NEO</h4>
+                        <select id="neo-selector" class="control-select">
+                            <option value="all">View All</option>
+                        </select>
+                        <div class="neo-info" id="neo-info-display" style="display: none;">
+                            <div class="neo-info-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h4>View Controls</h4>
+                    <button class="control-btn" id="focus-earth">
+                        <i class="fas fa-crosshairs"></i> Focus on Earth
+                    </button>
+                    <button class="control-btn" id="reset-3d-view">
+                        <i class="fas fa-undo"></i> Reset View
+                    </button>
+                    <a href="index.html" class="control-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-map"></i> Impact Map
+                    </a>
+                </div>
+            </div>
+
+            <!-- Asteroid Belts Info -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-circle"></i> Asteroid Belts</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Kuiper Belt</div>
+                        <div class="info-value" style="color: #555555;">800</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Trojan</div>
+                        <div class="info-value" style="color: #777777;">600</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Main Belt</div>
+                        <div class="info-value" style="color: #999999;">1500</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">NEOs</div>
+                        <div class="info-value" style="color: #ffffff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">400</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Camera Info -->
+            <div class="sidebar-section">
+                <h3><i class="fas fa-camera"></i> Camera</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Position X</div>
+                        <div class="info-value" id="cam-x">-300</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Position Y</div>
+                        <div class="info-value" id="cam-y">200</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Position Z</div>
+                        <div class="info-value" id="cam-z">400</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Zoom</div>
+                        <div class="info-value" id="cam-zoom">1.0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="viewer-main">
+
+            <!-- 3D Canvas -->
+            <div class="viewer-canvas" id="viewer-canvas">
+                <!-- Three.js will render here -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
+    <script src="https://threejs.org/examples/js/renderers/CSS2DRenderer.js"></script>
+    
+    <!-- 3D Viewer Script -->
+    <script src="js/visualization/ThreeJSViewer.js"></script>
+</body>
+</html>

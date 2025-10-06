@@ -9,11 +9,14 @@
     <link rel="stylesheet" href="css/base/reset.css">
     <link rel="stylesheet" href="css/components/splash.css">
     <link rel="stylesheet" href="css/components/buttons.css">
+    <link rel="stylesheet" href="css/components/forms.css">
+    <link rel="stylesheet" href="css/components/modals.css">
+    <link rel="stylesheet" href="css/components/statistics.css">
     <link rel="stylesheet" href="css/layout/sidebar.css">
     <link rel="stylesheet" href="css/app.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <!-- Mapbox removed - using Leaflet instead -->
 </head>
 <body>
     <!-- Splash Screen -->
@@ -96,13 +99,13 @@
                     </div>
                 </div>
 
-                <!-- 3D Controls -->
-                <div class="control-section" id="3d-controls">
-                    <h3><i class="fas fa-cube"></i> 3D Controls</h3>
-                    <div id="3d-filters-panel">
-                        <!-- 3D filters will be populated by JavaScript -->
-                    </div>
+            <!-- 3D Controls -->
+            <div class="control-section" id="3d-controls">
+                <h3><i class="fas fa-cube"></i> 3D Controls</h3>
+                <div id="3d-filters-panel">
+                    <!-- 3D filters will be populated by JavaScript -->
                 </div>
+            </div>
 
                 <!-- Defense Strategy -->
                 <div class="control-section">
@@ -151,21 +154,18 @@
         <main class="main-viewport">
             <!-- View Controls -->
             <div class="view-controls-top">
-                <button class="view-btn active" data-view="3d">
+                <a href="3d-viewer.html" class="view-btn">
                     <i class="fas fa-cube"></i> 3D Visualization
-                </button>
-                <button class="view-btn" data-view="2d">
+                </a>
+                <button class="view-btn active" data-view="2d">
                     <i class="fas fa-map"></i> Impact Map
                 </button>
             </div>
 
-            <!-- 3D Visualization -->
-            <div class="viewport-container active" id="viewport-3d">
-                <canvas id="orbit-canvas"></canvas>
-            </div>
+            <!-- 3D Visualization moved to separate page -->
 
             <!-- 2D Impact Map -->
-            <div class="viewport-container" id="viewport-2d">
+            <div class="viewport-container active" id="viewport-2d">
                 <div class="impact-map-2d">
                     <div id="leaflet-map" class="leaflet-container">
                         <!-- Map Controls -->
@@ -426,8 +426,8 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
+    <script src="https://threejs.org/examples/js/renderers/CSS2DRenderer.js"></script>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -448,5 +448,6 @@
     <script src="js/utils/UtilsManager.js"></script>
     
     <script src="js/app.js"></script>
+    
 </body>
 </html>
